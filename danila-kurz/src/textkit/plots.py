@@ -105,12 +105,14 @@ def plot_noise(metrics: dict, out: Path) -> None:
           value_offset_frac=0.12)
     ax.set_xlabel("% документов (лог-шкала)")
     from matplotlib.patches import Patch
+    # Легенда — над графиком, в две колонки: внутри осей она наезжает на бары.
     ax.legend(
         handles=[Patch(color=C_BLUE, label="системный шум"),
                  Patch(color=C_SAND, label="редкие типы")],
-        loc="lower right", frameon=False, fontsize=8.5,
+        loc="upper left", bbox_to_anchor=(0.0, 1.14), ncol=2,
+        frameon=False, fontsize=8.5,
     )
-    fig.tight_layout(rect=(0, 0.045, 1, 1))
+    fig.tight_layout(rect=(0, 0.045, 1, 0.90))
     caption(fig, "Измерено на train теми же регулярками, которыми ведётся очистка")
     fig.savefig(out, dpi=140)
     plt.close(fig)
@@ -129,12 +131,15 @@ def plot_vocab(metrics: dict, out: Path) -> None:
         colors=[C_BLUE, C_TEAL, C_PEACH],
     )
     ax.set_ylabel("уникальных токенов")
-    ax.text(1, vocab["stem"] * 1.06,
-            f"−{int((1 - vocab['stem_ratio']) * 100)} %", ha="center",
-            color=C_TEAL, fontsize=9, fontweight="bold")
-    ax.text(2, vocab["lemma"] * 1.06,
-            f"−{int((1 - vocab['lemma_ratio']) * 100)} %", ha="center",
-            color=C_PEACH, fontsize=9, fontweight="bold")
+    # Проценты — внутри баров, чтобы не спорить с числами над ними.
+    # Тёмный текст: белый на светлых пастельных барах теряет контраст.
+    for i, key in enumerate(("stem", "lemma")):
+        ax.text(
+            i + 1, vocab[key] * 0.42,
+            f"−{round((1 - vocab[f'{key}_ratio']) * 100)} %",
+            ha="center", va="center",
+            fontsize=10.5, fontweight="bold", color=INK,
+        )
     fig.tight_layout(rect=(0, 0.045, 1, 1))
     caption(fig, "Один и тот же корпус train, порог частоты одинаковый")
     fig.savefig(out, dpi=140)
