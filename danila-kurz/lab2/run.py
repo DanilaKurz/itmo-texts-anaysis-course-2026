@@ -18,15 +18,12 @@ import time
 from collections import Counter
 from pathlib import Path
 
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from src.textkit import plots
 from src.textkit.morphology import (
     apply_resolution_to_span,
     count_pos,
@@ -105,29 +102,7 @@ def step_pos(df: pd.DataFrame, metrics: dict) -> pd.DataFrame:
 
 
 def step_pos_figures(metrics: dict) -> None:
-    pos = metrics["pos"]
-    order = [p for p in POS_ORDER if p in pos["counts"]]
-
-    fig, axes = plt.subplots(1, 2, figsize=(15, 5))
-    values = [pos["share"][p] * 100 for p in order]
-    axes[0].bar(order, values)
-    axes[0].set_title("Доля частей речи в корпусе, %")
-    axes[0].set_ylabel("% токенов")
-    axes[0].tick_params(axis="x", rotation=45)
-
-    topics = sorted(pos["by_topic_share"])
-    matrix = [[pos["by_topic_share"][t].get(p, 0) * 100 for p in order] for t in topics]
-    image = axes[1].imshow(matrix, aspect="auto", cmap="Blues")
-    axes[1].set_xticks(range(len(order)), order, rotation=45, ha="right")
-    axes[1].set_yticks(range(len(topics)), topics)
-    axes[1].set_title("Доля POS по темам, %")
-    for i in range(len(topics)):
-        for j in range(len(order)):
-            axes[1].text(j, i, f"{matrix[i][j]:.1f}", ha="center", va="center", fontsize=7)
-    fig.colorbar(image, ax=axes[1], shrink=0.8)
-    fig.tight_layout()
-    fig.savefig(ART / "fig_pos.png", dpi=150)
-    plt.close(fig)
+    plots.plot_pos(metrics, ART / "fig_pos.png")
 
 
 # --------------------------------------------------------------- дерево и пары
@@ -273,21 +248,7 @@ def step_parse(sample: pd.DataFrame, metrics: dict) -> None:
 
 
 def step_figures(metrics: dict) -> None:
-    fig, axes = plt.subplots(1, 2, figsize=(15, 5))
-    for ax, key, title in [
-        (axes[0], "subject_verb_top20", "Топ-20 пар «субъект + действие»"),
-        (axes[1], "noun_adj_top20", "Топ-20 пар «существительное + прилагательное»"),
-    ]:
-        rows = metrics["pairs"][key][:20]
-        labels = [f"{a} → {b}" for a, b, _ in reversed(rows)]
-        values = [c for _, _, c in reversed(rows)]
-        ax.barh(labels, values)
-        ax.set_title(title)
-        ax.set_xlabel("частота")
-        ax.tick_params(axis="y", labelsize=7)
-    fig.tight_layout()
-    fig.savefig(ART / "fig_pairs.png", dpi=150)
-    plt.close(fig)
+    plots.plot_pairs(metrics, ART / "fig_pairs.png")
 
 
 def main() -> None:

@@ -19,16 +19,13 @@ from collections import Counter
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import pandas as pd
 import pymorphy3
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from src.textkit import plots
 from src.textkit.cleaning import clean_text, noise_report, tokenize, with_boundaries
 from src.textkit.dataset import length_stats, load_lenta, stratified_split
 from src.textkit.levenshtein import iter_close_pairs
@@ -101,33 +98,11 @@ def step_eda(train: pd.DataFrame, metrics: dict) -> None:
     metrics["eda"] = stats
     metrics["classes"] = {k: int(v) for k, v in train["topic"].value_counts().items()}
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
-    counts = train["topic"].value_counts()
-    axes[0].bar(range(len(counts)), counts.values)
-    axes[0].set_xticks(range(len(counts)))
-    axes[0].set_xticklabels(counts.index, rotation=30, ha="right")
-    axes[0].set_title("Документы по темам")
-    axes[0].set_ylabel("шт.")
-
-    words = train["text"].str.split().str.len()
-    axes[1].hist(words, bins=80, log=True)
-    axes[1].set_xlim(0, 600)
-    axes[1].set_title("Распределение длин (слова)")
-    axes[1].set_xlabel("слов в документе")
-    axes[1].set_ylabel("документов (лог)")
-
     tokens = Counter()
     for text in train["text"]:
         tokens.update(w.lower() for w in text.split())
     top_all = [(w, c) for w, c in tokens.most_common(300) if w.isalpha()][:30]
     stop_share = sum(c for w, c in tokens.items() if w in STOPWORDS) / sum(tokens.values())
-    axes[2].barh([w for w, _ in reversed(top_all)], [c for _, c in reversed(top_all)])
-    axes[2].set_title("Топ-30 частых токенов (почти все — стоп-слова)")
-    axes[2].set_xlabel("частота")
-
-    fig.tight_layout()
-    fig.savefig(ART / "fig_eda.png", dpi=150)
-    plt.close(fig)
 
     metrics["stopwords"] = {
         "share_of_tokens": round(stop_share, 4),
@@ -136,6 +111,7 @@ def step_eda(train: pd.DataFrame, metrics: dict) -> None:
             [w, int(c)] for w, c in tokens.most_common(400) if w not in STOPWORDS and w.isalpha()
         ][:30],
     }
+    plots.plot_eda(metrics, train, ART / "fig_eda.png")
     log("2. EDA", start, слов_в_среднем=round(stats["words_mean"], 1), доля_стопслов=round(stop_share, 3))
 
 
@@ -151,6 +127,7 @@ def step_noise(train: pd.DataFrame, metrics: dict) -> None:
         if len(sample):
             examples.append({"type": name, "text": sample.iloc[0][:300]})
     metrics["noise_examples"] = examples
+    plots.plot_noise(metrics, ART / "fig_noise.png")
     log("3. Анализ шума", start, типов=len(report))
 
 
@@ -213,6 +190,7 @@ def step_normalize(train_clean: pd.DataFrame, metrics: dict) -> Counter:
         "lemma": [f"{w} -> {lemmatize(w)}" for w, _ in raw_counts.most_common(200)][:12],
         "stem": [f"{w} -> {stem(w)}" for w, _ in raw_counts.most_common(200)][:12],
     }
+    plots.plot_vocab(metrics, ART / "fig_vocab.png")
     log(
         "5. Стемминг и лемматизация",
         start,
@@ -343,6 +321,7 @@ def step_lm(tokens_train: Path, tokens_test: Path, metrics: dict) -> None:
         {"temperature": t, "text": model.generate(max_len=40, temperature=t, seed=i)}
         for i, t in enumerate(temperatures)
     ]
+    plots.plot_ppl(metrics, ART / "fig_ppl.png")
     log(
         "7. Языковая модель",
         start,
