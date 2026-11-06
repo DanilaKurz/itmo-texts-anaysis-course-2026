@@ -1,0 +1,15 @@
+# Датасет и тяжёлые артефакты не коммитятся
+data/
+*.parquet
+tokens_train.txt
+tokens_test.txt
+artifacts/lab1/clean_*.parquet
+
+# Окружение
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Служебное
+.DS_Store

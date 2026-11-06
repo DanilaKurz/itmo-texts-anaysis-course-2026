@@ -1,0 +1,17 @@
+,docs,share
+url,7366.0,0.0446
+email,38.0,0.0002
+handle,478.0,0.0029
+hashtag,288.0,0.0017
+html_tag,2.0,0.0
+html_entity,0.0,0.0
+invisible_space,6346.0,0.0384
+emoji,105.0,0.0006
+censored,121.0,0.0007
+number,159512.0,0.9659
+quote,52512.0,0.318
+dash,50300.0,0.3046
+multi_space,23848.0,0.1444
+newline,2082.0,0.0126
+scraper_artifact,10.0,0.0001
+word_glue,1225.0,0.0074

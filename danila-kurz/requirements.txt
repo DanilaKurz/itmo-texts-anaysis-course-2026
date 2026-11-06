@@ -1,0 +1,23 @@
+# Проверенные версии на Apple M5 / macOS arm64 / Python 3.12 (28.10.2026)
+# Установка:
+#   uv venv --python 3.12 .venv && source .venv/bin/activate
+#   uv pip install -r requirements.txt
+#   python -m spacy download ru_core_news_sm
+#   python -c "import nltk; nltk.download('stopwords')"
+
+torch==2.15.0
+transformers==5.21.0
+sentence-transformers==6.2.0
+spacy==3.8.18
+gensim==4.4.0
+pymorphy3==2.0.6
+pymorphy3-dicts-ru
+razdel==0.5.0
+scikit-learn==1.9.1
+pandas==3.1.0
+numpy==2.5.4
+pyarrow
+matplotlib
+seaborn
+nltk
+faiss-cpu==1.15.1
