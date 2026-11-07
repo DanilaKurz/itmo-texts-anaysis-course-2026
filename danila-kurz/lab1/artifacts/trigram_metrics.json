@@ -1,0 +1,26 @@
+{
+  "note": "разовое сравнение N=2 vs N=3, sandbox/lab1_trigram.py",
+  "vocab_size": 298610,
+  "bigram_types": 7980627,
+  "trigram_types": 17749215,
+  "discount_bigram": 0.7392,
+  "discount_trigram": 0.8377,
+  "results": {
+    "bigram_add_k": {
+      "perplexity": 1073.24,
+      "unseen_share": 0.1812
+    },
+    "bigram_kneser_ney": {
+      "perplexity": 421.34,
+      "unseen_share": 0.1812
+    },
+    "trigram_add_k": {
+      "perplexity": 9007.93,
+      "unseen_share": 0.4957
+    },
+    "trigram_kneser_ney": {
+      "perplexity": 248.89,
+      "unseen_share": 0.4957
+    }
+  }
+}
